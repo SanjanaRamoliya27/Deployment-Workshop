@@ -1,5 +1,5 @@
 # UI
-gradio==4.44.0
+gradio==4.44.1
 
 # Hugging Face Hub (required by Gradio 4.x)
 huggingface_hub==0.19.4
