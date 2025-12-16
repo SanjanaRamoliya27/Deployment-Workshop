@@ -3,52 +3,64 @@ name: Deploy to Hugging Face Space
 on:
   push:
     branches:
-      - main          # deploy whenever you push to main
-  workflow_dispatch:  # allow manual run from Actions tab
+      - main          # Deploy on every push to main
+  workflow_dispatch:  # Allow manual trigger
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2️⃣ Set up Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      # 3️⃣ Install dependencies
       - name: Install Hugging Face Hub
-        run: pip install huggingface_hub
+        run: |
+          pip install --upgrade huggingface_hub
 
-      - name: Push to Hugging Face Space
+      # 4️⃣ Push project to Hugging Face Space
+      - name: Deploy to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           python - << "EOF"
+          import os
           from huggingface_hub import HfApi
 
-          # 🔴 CHANGE THIS to your real Hugging Face Space id
-          #   format: "<hf-username>/<space-name>"
-          #   example: "ANANDA89/dt_hf_deploy"
-          repo_id = "Sanjana0027/DeploymentWorkshop"
+          # 🔴 CHANGE if your HF username or space name is different
+          REPO_ID = "Sanjana0027/DeploymentWorkshop"
 
-          api = HfApi()
+          # Initialize API with token
+          api = HfApi(token=os.environ["HF_TOKEN"])
 
-          # Create the Space if it doesn't exist
+          print("🔹 Creating (or reusing) Hugging Face Space...")
           api.create_repo(
-              repo_id=repo_id,
+              repo_id=REPO_ID,
               repo_type="space",
-              exist_ok=True,
               space_sdk="gradio",
+              exist_ok=True,
           )
 
-          # Upload all files except git/CI metadata
+          print("🔹 Uploading project files...")
           api.upload_folder(
               folder_path=".",
-              repo_id=repo_id,
+              repo_id=REPO_ID,
               repo_type="space",
-              ignore_patterns=[".git", ".github"],
+              ignore_patterns=[
+                  ".git",
+                  ".github",
+                  "__pycache__",
+                  "*.pyc",
+              ],
           )
+
+          print("✅ Deployment to Hugging Face Space completed successfully!")
           EOF
