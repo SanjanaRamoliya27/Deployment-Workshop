@@ -51,6 +51,13 @@ tomlkit==0.13.3
 tqdm==4.67.1
 typer==0.20.0
 typer-slim==0.20.0
+
+# --- UI ---
+gradio==4.44.0
+
+# --- Hugging Face Hub (DO NOT upgrade) ---
+huggingface_hub==0.19.4
+
 typing-inspection==0.4.2
 typing_extensions==4.15.0
 tzdata==2025.2
